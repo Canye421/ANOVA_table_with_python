@@ -1,0 +1,109 @@
+def cal_mean(data):
+    mean = sum(data)/len(data)
+    return mean
+
+def cal_variance(data):
+    data_q = []
+    m_data = cal_mean(data)
+    for e in data:
+        e_q = (e - m_data)**2
+        data.q.expand(e_q)
+    n = len(data) - 1
+    var = sum(data_q)/n
+    return var
+
+def cal_median(data):
+    if len(data)%2 == 0:
+        n = (len(data)-1)/2
+        n_add_one = n+1
+        median = (data[n]+data[n_add_one])/2
+    else:
+        n = (len(data)-1)/2 +1
+        median = data[n]
+    return median
+
+class sample_data:
+    def __init__(self, observer, main_factor,feature_g, feature_r, feature_l):
+        self.observer = observer
+        self.main_factor = main_factor
+        self.feature_g = feature_g
+        self.feature_r = feature_r
+        self.feature_l = feature_l
+
+def sum_of_squares(data):
+    data_q = []
+    for x in data:
+        x_q = x ** 2
+        data_q.append(x_q)
+    total = sum(data_q)
+    return total
+
+def get_values(my_list,dictionary):
+    for v in dictionary.values():
+        my_list.append(v)
+    return my_list
+
+def my_anova(data):
+
+    main_factors = {}
+    feature_gs = {}
+    feature_rs = {}
+    feature_cs = {}
+
+    observers_m = []
+    observers_g = []
+    observers_r = []
+    observers_c = []
+
+    observers_total = []
+
+    for d in data:
+        if d.feature_g not in feature_gs.keys():
+            feature_gs[d.feature_g] = d.observer
+        if d.feature_r not in feature_rs.keys():
+            feature_rs[d.feature_r] = d.observer
+        if d.feature_c not in feature_cs.keys():
+            feature_cs[d.feature_c] = d.observer
+        if d.main_factor not in main_factors.keys():
+            main_factors[d.main_factor] = d.observer
+
+    for d in data:
+        observers_total.append(d.observer)
+
+    get_values(observers_m, main_factors)
+    get_values(observers_g, feature_gs)
+    get_values(observers_r, feature_rs)
+    get_values(observers_c, feature_cs)
+
+    p = len(observers_m)
+    N = len(observers_total)
+    sum_sq_total = sum_of_squares(observers_total)/N
+
+    ssl = sum_of_squares(observers_m)/p - sum_sq_total
+    ssg = sum_of_squares(observers_g)/p - sum_sq_total
+    ssr = sum_of_squares(observers_r)/p - sum_sq_total
+    ssc = sum_of_squares(observers_c)/p - sum_sq_total
+
+    sst = sum_of_squares(observers_total) - sum_sq_total
+    sse = sst-ssl-ssg-ssc-ssr
+
+    d_o_f = p - 1
+    d_o_f_e = (p-3)*(p-1)
+    d_o_f_t = p**2 - 1
+
+    msl = ssl / d_o_f
+    msg = ssg / d_o_f
+    msr = ssr / d_o_f
+    msc = ssc / d_o_f
+
+    mse = sse / d_o_f
+
+    f0 = msl / mse
+
+    print("Source of Variation " + "Sum of Squares" + "Degrees of Freedom" + "Mean Square " + "F0")
+    print("Main Factor         " + str(ssl) + "   " + str(d_o_f) + "     " + str(msl) + " ")
+    print("Feature 1           " + str(ssg) + "   " + str(d_o_f) + "     " + str(msg) + " ")
+    print("Feature 2           " + str(ssr) + "   " + str(d_o_f) + "     " + str(msr) + " ")
+    print("Feature 3           " + str(ssc) + "   " + str(d_o_f) + "     " + str(msc) + " ")
+    print("Error               " + str(sse) + "   " + str(d_o_f_e) + "   " + str(mse) + " ")
+    print("Total               " + str(sst) + "   " + str(d_o_f_t))
